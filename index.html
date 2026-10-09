@@ -293,6 +293,418 @@
                 font-size: 45px;
             }
         }
+      
+/* =====================================
+   QUIZ MATEMÁTICO — NOVO VISUAL ESCOLAR
+   Apenas CSS: não altera a lógica do jogo
+   ===================================== */
+
+/* Cores e aparência geral */
+:root {
+    --azul: #4f72d9;
+    --azul-claro: #eaf1ff;
+    --roxo: #8254c8;
+    --amarelo: #ffd65a;
+    --verde: #39b982;
+    --rosa: #ff8eaa;
+    --texto: #34415e;
+    --borda: #e1e8f5;
+}
+
+* {
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    min-height: 100vh;
+    padding: 28px 16px;
+    color: var(--texto);
+    background-color: #f5f7ff;
+    background-image:
+        radial-gradient(circle at 8% 12%, #ffe9a8 0, transparent 20%),
+        radial-gradient(circle at 92% 15%, #dcd0ff 0, transparent 23%),
+        radial-gradient(circle at 85% 90%, #c9f5e3 0, transparent 24%),
+        linear-gradient(135deg, #f5f7ff, #fff8fc);
+}
+
+/* Cartão principal do jogo */
+.game-container {
+    width: 100%;
+    max-width: 900px;
+    padding: 34px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.96);
+    border: 2px solid #ffffff;
+    border-radius: 30px;
+    box-shadow:
+        0 18px 45px rgba(70, 85, 145, 0.12),
+        0 4px 12px rgba(70, 85, 145, 0.06);
+}
+
+/* Cabeçalho */
+.header {
+    flex-wrap: wrap;
+    padding-bottom: 22px;
+    margin-bottom: 28px;
+    border-bottom: 2px dashed #e8eaf7;
+}
+
+.logo {
+    color: var(--roxo);
+    font-size: clamp(23px, 3vw, 31px);
+    font-weight: 900;
+    letter-spacing: -0.8px;
+}
+
+.logo span {
+    color: var(--azul);
+}
+
+.score {
+    padding: 11px 18px;
+    color: #76530a;
+    background: #fff1b8;
+    border: 2px solid #ffe18a;
+    border-radius: 15px;
+    box-shadow: 0 4px 0 #f3d477;
+    white-space: nowrap;
+}
+
+/* Progresso das questões */
+.progress-info {
+    color: #687592;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.progress-bar {
+    height: 15px;
+    margin-bottom: 28px;
+    overflow: hidden;
+    background: #e9edfa;
+    border: 2px solid #e1e7f8;
+    border-radius: 20px;
+}
+
+.progress {
+    background: linear-gradient(
+        90deg,
+        #ffb75e,
+        #ff8eaa,
+        #a17bea,
+        #58cdb0
+    );
+    border-radius: inherit;
+    transition: width 0.45s ease;
+}
+
+/* Cartão da pergunta */
+.question-card {
+    position: relative;
+    padding: 30px;
+    margin-bottom: 25px;
+    overflow-wrap: anywhere;
+    background: linear-gradient(135deg, #f0f3ff, #fff2f8);
+    border: 2px solid #e3e7fb;
+    border-left: 7px solid var(--roxo);
+    border-radius: 22px;
+    box-shadow: 0 6px 0 #e9e6f7;
+}
+
+.difficulty {
+    padding: 7px 14px;
+    color: #3c65b6;
+    background: #dceaff;
+    border: 1px solid #c4d9ff;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.question {
+    margin-top: 7px;
+    color: #303c61;
+    font-size: clamp(21px, 3vw, 28px);
+    font-weight: 800;
+    line-height: 1.5;
+}
+
+/* Alternativas */
+.answers {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 15px;
+}
+
+.answer {
+    min-width: 0;
+    min-height: 68px;
+    padding: 18px 20px;
+    color: #414c6b;
+    background: #ffffff;
+    border: 2px solid var(--borda);
+    border-radius: 17px;
+    box-shadow: 0 4px 0 #e9edf7;
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+    transition:
+        transform 0.2s ease,
+        border-color 0.2s ease,
+        background-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.answer:hover:not(:disabled) {
+    color: #6842b3;
+    background: #f5f0ff;
+    border-color: #ad91ec;
+    box-shadow: 0 6px 0 #e1d5fb;
+    transform: translateY(-3px);
+}
+
+.answer:focus-visible,
+.next-button:focus-visible,
+.restart-button:focus-visible {
+    outline: 3px solid #4169e1;
+    outline-offset: 4px;
+}
+
+/* Resposta correta */
+.answer.correct {
+    color: #176c4b;
+    background: #d9f8e9;
+    border-color: #58c99a;
+    box-shadow: 0 4px 0 #a4e4c5;
+}
+
+/* Resposta incorreta */
+.answer.wrong {
+    color: #a72f50;
+    background: #ffe1e9;
+    border-color: #ff8ca5;
+    box-shadow: 0 4px 0 #ffc0ce;
+}
+
+.answer:disabled {
+    opacity: 1;
+    cursor: default;
+}
+
+/* Mensagem de explicação */
+.feedback {
+    padding: 21px;
+    color: #6e5313;
+    background: #fff6d8;
+    border: 2px solid #ffe6a0;
+    border-left: 6px solid #f5c644;
+    border-radius: 17px;
+    font-size: 16px;
+    line-height: 1.75;
+    overflow-wrap: anywhere;
+}
+
+.feedback.show {
+    animation: fadeIn 0.35s ease;
+}
+
+/* Botões de avançar e recomeçar */
+.next-button,
+.restart-button {
+    min-height: 58px;
+    padding: 17px 22px;
+    color: #ffffff;
+    background: linear-gradient(110deg, #7954cb, #5278df);
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 6px 0 #d6d0f3;
+    font-size: 17px;
+    font-weight: 800;
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        filter 0.2s ease;
+}
+
+.next-button:hover,
+.restart-button:hover {
+    filter: brightness(1.07);
+    box-shadow: 0 8px 0 #d6d0f3;
+    transform: translateY(-2px);
+}
+
+.next-button:active,
+.restart-button:active {
+    box-shadow: 0 2px 0 #d6d0f3;
+    transform: translateY(2px);
+}
+
+/* Tela final */
+.result-screen {
+    padding: 38px 18px;
+}
+
+.trophy {
+    display: inline-block;
+    margin-bottom: 18px;
+    font-size: 82px;
+    animation: trophyBounce 1.4s ease-in-out infinite;
+}
+
+.result-screen h1 {
+    color: var(--roxo);
+    font-size: clamp(27px, 4vw, 36px);
+    font-weight: 900;
+}
+
+.final-score {
+    color: #289f78;
+    font-size: clamp(42px, 7vw, 60px);
+    font-weight: 900;
+    text-shadow: 2px 3px 0 #d9f5e8;
+}
+
+.message {
+    color: #596581;
+    font-size: 17px;
+    line-height: 1.8;
+}
+
+/* Animações suaves */
+@keyframes trophyBounce {
+    0%, 100% {
+        transform: translateY(0) rotate(-3deg);
+    }
+
+    50% {
+        transform: translateY(-7px) rotate(3deg);
+    }
+}
+
+/* Computadores e telas médias */
+@media (min-width: 1000px) {
+    .game-container {
+        padding: 40px;
+    }
+
+    .answers {
+        gap: 18px;
+    }
+}
+
+/* Celulares */
+@media (max-width: 650px) {
+    body {
+        align-items: flex-start;
+        padding: 12px 9px;
+    }
+
+    .game-container {
+        padding: 19px 15px;
+        border-radius: 23px;
+    }
+
+    .header {
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 23px;
+        padding-bottom: 18px;
+    }
+
+    .logo {
+        font-size: 23px;
+        line-height: 1.4;
+    }
+
+    .score {
+        padding: 9px 12px;
+        font-size: 13px;
+    }
+
+    .progress-bar {
+        margin-bottom: 23px;
+    }
+
+    .question-card {
+        padding: 23px 18px;
+        border-left-width: 5px;
+        border-radius: 18px;
+    }
+
+    .question {
+        font-size: 22px;
+        line-height: 1.45;
+    }
+
+    .answers {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 12px;
+    }
+
+    .answer {
+        min-height: 58px;
+        padding: 15px;
+        font-size: 16px;
+    }
+
+    .feedback {
+        padding: 16px;
+        font-size: 15px;
+    }
+
+    .next-button,
+    .restart-button {
+        min-height: 54px;
+        padding: 15px;
+        font-size: 16px;
+    }
+
+    .result-screen {
+        padding: 28px 5px;
+    }
+
+    .trophy {
+        font-size: 68px;
+    }
+}
+
+/* Telas muito pequenas */
+@media (max-width: 360px) {
+    .game-container {
+        padding: 15px 11px;
+    }
+
+    .header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .logo {
+        font-size: 22px;
+    }
+
+    .question-card {
+        padding: 19px 14px;
+    }
+
+    .question {
+        font-size: 20px;
+    }
+}
+
+/* Respeita quem prefere menos animações */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
     </style>
 </head>
 
