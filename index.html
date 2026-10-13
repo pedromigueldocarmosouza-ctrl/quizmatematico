@@ -1,1062 +1,455 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz Matemático</title>
-
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: "Segoe UI", Arial, sans-serif;
-        }
-
-        body {
-            min-height: 100vh;
-            background: linear-gradient(135deg, #dff6ff, #f7e8ff, #fff2d9);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            color: #4b4b63;
-        }
-
-        .game-container {
-            width: 100%;
-            max-width: 850px;
-            background: rgba(255, 255, 255, 0.88);
-            backdrop-filter: blur(15px);
-            border-radius: 28px;
-            padding: 30px;
-            box-shadow: 0 15px 45px rgba(100, 100, 130, 0.15);
-        }
-
-        /* CABEÇALHO */
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-            gap: 15px;
-        }
-
-        .logo {
-            font-size: 28px;
-            font-weight: 800;
-            color: #8b78d6;
-        }
-
-        .logo span {
-            color: #78b8b0;
-        }
-
-        .score {
-            background: #fff0c9;
-            color: #8d6c2f;
-            padding: 10px 18px;
-            border-radius: 50px;
-            font-weight: bold;
-        }
-
-        /* PROGRESSO */
-
-        .progress-info {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            color: #77778c;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 12px;
-            background: #eeeaf8;
-            border-radius: 20px;
-            overflow: hidden;
-            margin-bottom: 30px;
-        }
-
-        .progress {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, #b8a7ed, #92d6cd);
-            border-radius: 20px;
-            transition: width 0.4s ease;
-        }
-
-        /* PERGUNTA */
-
-        .question-card {
-            background: #f9f7ff;
-            border-radius: 22px;
-            padding: 28px;
-            margin-bottom: 25px;
-            border: 2px solid #eee9fb;
-        }
-
-        .difficulty {
-            display: inline-block;
-            background: #d9f2ec;
-            color: #568e84;
-            padding: 6px 13px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: bold;
-            margin-bottom: 15px;
-        }
-
-        .question {
-            font-size: 25px;
-            line-height: 1.4;
-            color: #48485d;
-        }
-
-        /* ALTERNATIVAS */
-
-        .answers {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        .answer {
-            border: 2px solid #e7e3f4;
-            background: white;
-            padding: 18px;
-            border-radius: 18px;
-            cursor: pointer;
-            transition: 0.25s ease;
-            font-size: 17px;
-            color: #55556b;
-            text-align: left;
-        }
-
-        .answer:hover {
-            transform: translateY(-3px);
-            border-color: #b8a7ed;
-            background: #faf8ff;
-            box-shadow: 0 8px 20px rgba(139, 120, 214, 0.12);
-        }
-
-        .answer.correct {
-            background: #ddf5e9;
-            border-color: #88cdb0;
-            color: #397a61;
-        }
-
-        .answer.wrong {
-            background: #ffe1e4;
-            border-color: #e9a5ad;
-            color: #9b4c58;
-        }
-
-        .answer:disabled {
-            cursor: not-allowed;
-        }
-
-        /* FEEDBACK */
-
-        .feedback {
-            display: none;
-            margin-top: 20px;
-            padding: 18px;
-            border-radius: 18px;
-            background: #fff6dc;
-            color: #725d2d;
-            line-height: 1.5;
-        }
-
-        .feedback.show {
-            display: block;
-            animation: fadeIn 0.4s ease;
-        }
-
-        /* BOTÃO */
-
-        .next-button,
-        .restart-button {
-            width: 100%;
-            border: none;
-            padding: 17px;
-            margin-top: 20px;
-            border-radius: 17px;
-            background: linear-gradient(135deg, #a999e6, #8fcfc5);
-            color: white;
-            font-size: 17px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.25s;
-        }
-
-        .next-button:hover,
-        .restart-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(139, 120, 214, 0.2);
-        }
-
-        /* TELA FINAL */
-
-        .result-screen {
-            display: none;
-            text-align: center;
-            padding: 35px 15px;
-        }
-
-        .result-screen.show {
-            display: block;
-            animation: fadeIn 0.5s ease;
-        }
-
-        .trophy {
-            font-size: 75px;
-            margin-bottom: 15px;
-        }
-
-        .result-screen h1 {
-            font-size: 32px;
-            color: #7664bb;
-            margin-bottom: 15px;
-        }
-
-        .final-score {
-            font-size: 55px;
-            font-weight: 800;
-            color: #78aaa3;
-            margin: 20px 0;
-        }
-
-        .message {
-            font-size: 18px;
-            line-height: 1.6;
-            max-width: 550px;
-            margin: auto;
-        }
-
-        /* ANIMAÇÃO */
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* RESPONSIVIDADE */
-
-        @media (max-width: 650px) {
-
-            body {
-                padding: 10px;
-            }
-
-            .game-container {
-                padding: 20px;
-                border-radius: 22px;
-            }
-
-            .header {
-                align-items: flex-start;
-            }
-
-            .logo {
-                font-size: 23px;
-            }
-
-            .score {
-                font-size: 13px;
-                padding: 8px 13px;
-            }
-
-            .answers {
-                grid-template-columns: 1fr;
-            }
-
-            .question {
-                font-size: 21px;
-            }
-
-            .question-card {
-                padding: 22px;
-            }
-
-            .final-score {
-                font-size: 45px;
-            }
-        }
-      
-/* =====================================
-   QUIZ MATEMÁTICO — NOVO VISUAL ESCOLAR
-   Apenas CSS: não altera a lógica do jogo
-   ===================================== */
-
-/* Cores e aparência geral */
-:root {
-    --azul: #4f72d9;
-    --azul-claro: #eaf1ff;
-    --roxo: #8254c8;
-    --amarelo: #ffd65a;
-    --verde: #39b982;
-    --rosa: #ff8eaa;
-    --texto: #34415e;
-    --borda: #e1e8f5;
-}
-
-* {
-    -webkit-tap-highlight-color: transparent;
-}
-
-body {
-    min-height: 100vh;
-    padding: 28px 16px;
-    color: var(--texto);
-    background-color: #f5f7ff;
-    background-image:
-        radial-gradient(circle at 8% 12%, #ffe9a8 0, transparent 20%),
-        radial-gradient(circle at 92% 15%, #dcd0ff 0, transparent 23%),
-        radial-gradient(circle at 85% 90%, #c9f5e3 0, transparent 24%),
-        linear-gradient(135deg, #f5f7ff, #fff8fc);
-}
-
-/* Cartão principal do jogo */
-.game-container {
-    width: 100%;
-    max-width: 900px;
-    padding: 34px;
-    overflow: hidden;
-    background: rgba(255, 255, 255, 0.96);
-    border: 2px solid #ffffff;
-    border-radius: 30px;
-    box-shadow:
-        0 18px 45px rgba(70, 85, 145, 0.12),
-        0 4px 12px rgba(70, 85, 145, 0.06);
-}
-
-/* Cabeçalho */
-.header {
-    flex-wrap: wrap;
-    padding-bottom: 22px;
-    margin-bottom: 28px;
-    border-bottom: 2px dashed #e8eaf7;
-}
-
-.logo {
-    color: var(--roxo);
-    font-size: clamp(23px, 3vw, 31px);
-    font-weight: 900;
-    letter-spacing: -0.8px;
-}
-
-.logo span {
-    color: var(--azul);
-}
-
-.score {
-    padding: 11px 18px;
-    color: #76530a;
-    background: #fff1b8;
-    border: 2px solid #ffe18a;
-    border-radius: 15px;
-    box-shadow: 0 4px 0 #f3d477;
-    white-space: nowrap;
-}
-
-/* Progresso das questões */
-.progress-info {
-    color: #687592;
-    font-size: 14px;
-    font-weight: 800;
-}
-
-.progress-bar {
-    height: 15px;
-    margin-bottom: 28px;
-    overflow: hidden;
-    background: #e9edfa;
-    border: 2px solid #e1e7f8;
-    border-radius: 20px;
-}
-
-.progress {
-    background: linear-gradient(
-        90deg,
-        #ffb75e,
-        #ff8eaa,
-        #a17bea,
-        #58cdb0
-    );
-    border-radius: inherit;
-    transition: width 0.45s ease;
-}
-
-/* Cartão da pergunta */
-.question-card {
-    position: relative;
-    padding: 30px;
-    margin-bottom: 25px;
-    overflow-wrap: anywhere;
-    background: linear-gradient(135deg, #f0f3ff, #fff2f8);
-    border: 2px solid #e3e7fb;
-    border-left: 7px solid var(--roxo);
-    border-radius: 22px;
-    box-shadow: 0 6px 0 #e9e6f7;
-}
-
-.difficulty {
-    padding: 7px 14px;
-    color: #3c65b6;
-    background: #dceaff;
-    border: 1px solid #c4d9ff;
-    border-radius: 10px;
-    font-size: 12px;
-    font-weight: 900;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-}
-
-.question {
-    margin-top: 7px;
-    color: #303c61;
-    font-size: clamp(21px, 3vw, 28px);
-    font-weight: 800;
-    line-height: 1.5;
-}
-
-/* Alternativas */
-.answers {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 15px;
-}
-
-.answer {
-    min-width: 0;
-    min-height: 68px;
-    padding: 18px 20px;
-    color: #414c6b;
-    background: #ffffff;
-    border: 2px solid var(--borda);
-    border-radius: 17px;
-    box-shadow: 0 4px 0 #e9edf7;
-    font-size: 17px;
-    font-weight: 700;
-    line-height: 1.45;
-    overflow-wrap: anywhere;
-    transition:
-        transform 0.2s ease,
-        border-color 0.2s ease,
-        background-color 0.2s ease,
-        box-shadow 0.2s ease;
-}
-
-.answer:hover:not(:disabled) {
-    color: #6842b3;
-    background: #f5f0ff;
-    border-color: #ad91ec;
-    box-shadow: 0 6px 0 #e1d5fb;
-    transform: translateY(-3px);
-}
-
-.answer:focus-visible,
-.next-button:focus-visible,
-.restart-button:focus-visible {
-    outline: 3px solid #4169e1;
-    outline-offset: 4px;
-}
-
-/* Resposta correta */
-.answer.correct {
-    color: #176c4b;
-    background: #d9f8e9;
-    border-color: #58c99a;
-    box-shadow: 0 4px 0 #a4e4c5;
-}
-
-/* Resposta incorreta */
-.answer.wrong {
-    color: #a72f50;
-    background: #ffe1e9;
-    border-color: #ff8ca5;
-    box-shadow: 0 4px 0 #ffc0ce;
-}
-
-.answer:disabled {
-    opacity: 1;
-    cursor: default;
-}
-
-/* Mensagem de explicação */
-.feedback {
-    padding: 21px;
-    color: #6e5313;
-    background: #fff6d8;
-    border: 2px solid #ffe6a0;
-    border-left: 6px solid #f5c644;
-    border-radius: 17px;
-    font-size: 16px;
-    line-height: 1.75;
-    overflow-wrap: anywhere;
-}
-
-.feedback.show {
-    animation: fadeIn 0.35s ease;
-}
-
-/* Botões de avançar e recomeçar */
-.next-button,
-.restart-button {
-    min-height: 58px;
-    padding: 17px 22px;
-    color: #ffffff;
-    background: linear-gradient(110deg, #7954cb, #5278df);
-    border: none;
-    border-radius: 16px;
-    box-shadow: 0 6px 0 #d6d0f3;
-    font-size: 17px;
-    font-weight: 800;
-    transition:
-        transform 0.2s ease,
-        box-shadow 0.2s ease,
-        filter 0.2s ease;
-}
-
-.next-button:hover,
-.restart-button:hover {
-    filter: brightness(1.07);
-    box-shadow: 0 8px 0 #d6d0f3;
-    transform: translateY(-2px);
-}
-
-.next-button:active,
-.restart-button:active {
-    box-shadow: 0 2px 0 #d6d0f3;
-    transform: translateY(2px);
-}
-
-/* Tela final */
-.result-screen {
-    padding: 38px 18px;
-}
-
-.trophy {
-    display: inline-block;
-    margin-bottom: 18px;
-    font-size: 82px;
-    animation: trophyBounce 1.4s ease-in-out infinite;
-}
-
-.result-screen h1 {
-    color: var(--roxo);
-    font-size: clamp(27px, 4vw, 36px);
-    font-weight: 900;
-}
-
-.final-score {
-    color: #289f78;
-    font-size: clamp(42px, 7vw, 60px);
-    font-weight: 900;
-    text-shadow: 2px 3px 0 #d9f5e8;
-}
-
-.message {
-    color: #596581;
-    font-size: 17px;
-    line-height: 1.8;
-}
-
-/* Animações suaves */
-@keyframes trophyBounce {
-    0%, 100% {
-        transform: translateY(0) rotate(-3deg);
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#070d20">
+  <meta name="description" content="Mestre das Contas — um desafio de matemática com espírito de aventura.">
+  <title>Mestre das Contas | Desafio Matemático</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap');
+    :root {
+      color-scheme: dark;
+      --bg: #070d1d;
+      --panel: rgba(13, 23, 49, .88);
+      --panel-2: #101d3c;
+      --line: rgba(105, 157, 255, .20);
+      --text: #f4f7ff;
+      --muted: #a6b4d3;
+      --blue: #38bdf8;
+      --blue-strong: #168bff;
+      --gold: #ffbf32;
+      --green: #45d6a0;
+      --red: #ff7185;
     }
-
-    50% {
-        transform: translateY(-7px) rotate(3deg);
-    }
-}
-
-/* Computadores e telas médias */
-@media (min-width: 1000px) {
-    .game-container {
-        padding: 40px;
-    }
-
-    .answers {
-        gap: 18px;
-    }
-}
-
-/* Celulares */
-@media (max-width: 650px) {
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body {
-        align-items: flex-start;
-        padding: 12px 9px;
+      margin: 0; min-height: 100vh; padding: 30px 18px 42px;
+      color: var(--text); font-family: Inter, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(ellipse at 14% 4%, rgba(20, 91, 214, .22), transparent 33%),
+        radial-gradient(ellipse at 90% 30%, rgba(0, 190, 255, .11), transparent 28%),
+        linear-gradient(145deg, #050918 0%, #09132b 48%, #070d1d 100%);
+      overflow-x: hidden;
     }
-
-    .game-container {
-        padding: 19px 15px;
-        border-radius: 23px;
+    body::before {
+      content: ""; position: fixed; inset: 0; pointer-events: none; opacity: .22;
+      background-image: radial-gradient(#5ebaff 1px, transparent 1px);
+      background-size: 34px 34px; mask-image: linear-gradient(to bottom, black, transparent 80%);
     }
-
-    .header {
-        align-items: center;
-        gap: 14px;
-        margin-bottom: 23px;
-        padding-bottom: 18px;
+    .site-shell { width: min(1120px, 100%); margin: auto; position: relative; }
+    .topbar { display:flex; justify-content:space-between; align-items:center; gap:18px; margin:0 0 26px; }
+    .brand { display:flex; align-items:center; gap:11px; font:700 15px "Space Grotesk",sans-serif; letter-spacing:.09em; text-transform:uppercase; }
+    .brand-mark { width:38px; height:38px; display:grid; place-items:center; border:1px solid rgba(56,189,248,.55); border-radius:12px; color:var(--blue); background:rgba(18,48,96,.65); box-shadow:0 0 25px rgba(22,139,255,.13); font-size:20px; }
+    .status { display:flex; align-items:center; gap:8px; color:#aab9d8; font-size:12px; letter-spacing:.08em; text-transform:uppercase; }
+    .status-dot { width:7px; height:7px; border-radius:50%; background:var(--green); box-shadow:0 0 12px rgba(69,214,160,.8); }
+    .hero {
+      display:grid; grid-template-columns:minmax(260px, .82fr) minmax(0, 1.18fr);
+      align-items:center; gap:clamp(24px, 5vw, 65px); padding:clamp(20px, 4vw, 46px);
+      border:1px solid var(--line); border-radius:28px;
+      background:linear-gradient(125deg, rgba(15,29,61,.94), rgba(7,14,31,.91));
+      box-shadow:0 28px 90px rgba(0,0,0,.28), inset 0 1px rgba(255,255,255,.04);
+      position:relative; overflow:hidden;
     }
-
-    .logo {
-        font-size: 23px;
-        line-height: 1.4;
+    .hero::after { content:""; position:absolute; width:310px; height:310px; right:-130px; top:-170px; border:1px solid rgba(56,189,248,.16); border-radius:50%; box-shadow:0 0 0 35px rgba(56,189,248,.025),0 0 0 70px rgba(56,189,248,.02); pointer-events:none; }
+    .logo-wrap { position:relative; z-index:1; }
+    .hero-logo { width:100%; max-width:360px; display:block; margin:auto; border-radius:20px; filter:drop-shadow(0 18px 38px rgba(0,0,0,.34)); }
+    .hero-copy { position:relative; z-index:1; }
+    .eyebrow { display:inline-flex; align-items:center; gap:9px; padding:8px 12px; border:1px solid rgba(56,189,248,.27); border-radius:999px; color:#8bdcff; background:rgba(18,78,125,.18); font-size:11px; font-weight:800; letter-spacing:.13em; text-transform:uppercase; }
+    .eyebrow::before { content:"✦"; color:var(--gold); font-size:14px; }
+    h1 { margin:20px 0 14px; font:700 clamp(34px, 5vw, 58px)/1.03 "Space Grotesk", sans-serif; letter-spacing:-.055em; }
+    h1 span { color:var(--blue); text-shadow:0 0 28px rgba(56,189,248,.2); }
+    .hero-copy p { max-width:490px; margin:0; color:var(--muted); font-size:16px; line-height:1.8; }
+    .hero-tags { display:flex; flex-wrap:wrap; gap:9px; margin-top:23px; }
+    .hero-tags span { padding:8px 11px; border:1px solid rgba(146,173,225,.15); border-radius:9px; background:rgba(255,255,255,.035); color:#c5d3ef; font-size:12px; }
+    .game-container { width:100%; max-width:900px; margin:28px auto 0; padding:clamp(22px,4vw,38px); border:1px solid var(--line); border-radius:24px; background:var(--panel); box-shadow:0 22px 70px rgba(0,0,0,.25); backdrop-filter:blur(18px); }
+    .game-top { display:flex; justify-content:space-between; align-items:center; gap:16px; margin-bottom:28px; padding-bottom:22px; border-bottom:1px solid var(--line); }
+    .section-kicker { color:#8fa5cc; font-size:11px; font-weight:800; letter-spacing:.14em; text-transform:uppercase; }
+    .game-title { margin:7px 0 0; font:700 clamp(21px,3vw,28px) "Space Grotesk",sans-serif; letter-spacing:-.035em; }
+    .score { display:flex; align-items:center; gap:9px; padding:11px 15px; border:1px solid rgba(255,191,50,.3); border-radius:14px; background:rgba(255,191,50,.08); color:#ffd66f; font-size:13px; font-weight:800; white-space:nowrap; }
+    .score-icon { font-size:18px; }
+    .progress-info { display:flex; justify-content:space-between; gap:12px; margin-bottom:10px; color:#9caecc; font-size:13px; font-weight:600; }
+    .progress-info #question-number { color:#dbe8ff; font-variant-numeric:tabular-nums; }
+    .progress-bar { height:8px; margin-bottom:27px; overflow:hidden; border-radius:20px; background:#1d2b4b; }
+    .progress { height:100%; width:0; border-radius:inherit; background:linear-gradient(90deg,var(--blue-strong),#50ddff,var(--gold)); box-shadow:0 0 16px rgba(56,189,248,.35); transition:width .4s ease; }
+    .question-card { padding:clamp(22px,4vw,32px); margin-bottom:20px; border:1px solid rgba(84,142,255,.23); border-radius:18px; background:linear-gradient(135deg,rgba(23,43,82,.88),rgba(13,25,53,.86)); position:relative; overflow:hidden; }
+    .question-card::after { content:"π"; position:absolute; right:18px; bottom:-32px; color:rgba(69,151,255,.07); font:700 130px "Space Grotesk",sans-serif; pointer-events:none; }
+    .difficulty { display:inline-flex; align-items:center; padding:7px 10px; margin-bottom:17px; border:1px solid rgba(56,189,248,.25); border-radius:8px; color:#80dcff; background:rgba(56,189,248,.09); font-size:10px; font-weight:800; letter-spacing:.1em; text-transform:uppercase; }
+    .question { position:relative; z-index:1; margin:0; color:#f5f8ff; font:600 clamp(21px,3vw,29px)/1.45 "Space Grotesk",sans-serif; }
+    .answers { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+    .answer { display:flex; align-items:center; gap:13px; min-height:66px; padding:16px 17px; text-align:left; color:#dbe6fc; background:rgba(17,31,61,.86); border:1px solid rgba(130,160,215,.2); border-radius:14px; font:600 15px/1.45 Inter,sans-serif; cursor:pointer; transition:transform .18s ease,border-color .18s ease,background .18s ease,box-shadow .18s ease; overflow-wrap:anywhere; }
+    .answer::before { content:""; flex:0 0 8px; width:8px; height:8px; border:2px solid #5b80ba; border-radius:3px; }
+    .answer:hover:not(:disabled) { transform:translateY(-2px); border-color:rgba(56,189,248,.65); background:rgba(24,57,103,.8); box-shadow:0 8px 24px rgba(0,0,0,.16); }
+    .answer:focus-visible,.next-button:focus-visible,.restart-button:focus-visible { outline:3px solid var(--gold); outline-offset:3px; }
+    .answer.correct { color:#a4f4d4; background:rgba(22,130,94,.17); border-color:rgba(69,214,160,.65); }
+    .answer.correct::before { background:var(--green); border-color:var(--green); }
+    .answer.wrong { color:#ffb7c1; background:rgba(155,43,66,.17); border-color:rgba(255,113,133,.65); }
+    .answer.wrong::before { background:var(--red); border-color:var(--red); }
+    .answer:disabled { cursor:default; }
+    .feedback { display:none; margin-top:17px; padding:17px 19px; border:1px solid rgba(255,191,50,.22); border-radius:14px; background:rgba(255,191,50,.07); color:#e7d9b3; line-height:1.7; font-size:14px; }
+    .feedback.show { display:block; animation:fadeIn .3s ease; }
+    .feedback strong { color:#ffcf5b; }
+    .next-button,.restart-button { width:100%; display:block; margin-top:20px; padding:16px 20px; border:1px solid rgba(120,218,255,.45); border-radius:13px; color:#061225; background:linear-gradient(100deg,#45c9ff,#8be8ff); font:800 14px Inter,sans-serif; cursor:pointer; transition:transform .18s ease,filter .18s ease,box-shadow .18s ease; }
+    .next-button:hover,.restart-button:hover { transform:translateY(-2px); filter:brightness(1.06); box-shadow:0 10px 30px rgba(56,189,248,.17); }
+    .result-screen { display:none; padding:25px 10px 12px; text-align:center; }
+    .result-screen.show { display:block; animation:fadeIn .45s ease; }
+    .trophy { font-size:66px; margin-bottom:12px; filter:drop-shadow(0 0 20px rgba(255,191,50,.2)); }
+    .result-screen h1 { margin:10px 0; font-size:clamp(28px,4vw,40px); letter-spacing:-.04em; }
+    .final-score { margin:20px 0; color:var(--gold); font:700 clamp(38px,7vw,58px) "Space Grotesk",sans-serif; }
+    .message { max-width:560px; margin:0 auto; color:var(--muted); line-height:1.8; }
+    .footer { margin-top:24px; text-align:center; color:#65799d; font-size:11px; letter-spacing:.05em; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+    @media (max-width:760px) {
+      body { padding:18px 12px 30px; }
+      .hero { grid-template-columns:1fr; gap:18px; padding:22px; text-align:center; }
+      .hero-logo { max-width:245px; }
+      .hero-copy p { margin:auto; }
+      .hero-tags { justify-content:center; }
+      h1 { margin-top:16px; }
+      .topbar { margin-bottom:16px; }
+      .game-container { margin-top:17px; }
     }
-
-    .score {
-        padding: 9px 12px;
-        font-size: 13px;
+    @media (max-width:520px) {
+      .status { font-size:9px; }
+      .brand { font-size:12px; }
+      .brand-mark { width:33px; height:33px; }
+      .game-top { align-items:flex-start; flex-direction:column; }
+      .score { align-self:flex-start; }
+      .answers { grid-template-columns:1fr; gap:10px; }
+      .answer { min-height:58px; }
+      .question-card { padding:21px; }
     }
-
-    .progress-bar {
-        margin-bottom: 23px;
-    }
-
-    .question-card {
-        padding: 23px 18px;
-        border-left-width: 5px;
-        border-radius: 18px;
-    }
-
-    .question {
-        font-size: 22px;
-        line-height: 1.45;
-    }
-
-    .answers {
-        grid-template-columns: minmax(0, 1fr);
-        gap: 12px;
-    }
-
-    .answer {
-        min-height: 58px;
-        padding: 15px;
-        font-size: 16px;
-    }
-
-    .feedback {
-        padding: 16px;
-        font-size: 15px;
-    }
-
-    .next-button,
-    .restart-button {
-        min-height: 54px;
-        padding: 15px;
-        font-size: 16px;
-    }
-
-    .result-screen {
-        padding: 28px 5px;
-    }
-
-    .trophy {
-        font-size: 68px;
-    }
-}
-
-/* Telas muito pequenas */
-@media (max-width: 360px) {
-    .game-container {
-        padding: 15px 11px;
-    }
-
-    .header {
-        align-items: flex-start;
-        flex-direction: column;
-    }
-
-    .logo {
-        font-size: 22px;
-    }
-
-    .question-card {
-        padding: 19px 14px;
-    }
-
-    .question {
-        font-size: 20px;
-    }
-}
-
-/* Respeita quem prefere menos animações */
-@media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
-        scroll-behavior: auto !important;
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-    }
-}
-    </style>
+    @media (prefers-reduced-motion: reduce) { *,*::before,*::after { animation-duration:.01ms!important; transition-duration:.01ms!important; scroll-behavior:auto!important; } }
+  </style>
 </head>
-
 <body>
+  <div class="site-shell">
+    <nav class="topbar" aria-label="Identificação do aplicativo">
+      <div class="brand"><span class="brand-mark">∑</span><span>Área de desafios</span></div>
+      <div class="status"><span class="status-dot"></span> Aprender • Praticar • Evoluir</div>
+    </nav>
+
+    <section class="hero" aria-label="Apresentação Mestre das Contas">
+      <div class="logo-wrap">
+        <img class="hero-logo" src="assets/mestre-das-contas.png" alt="Mestre das Contas — mago guardião da matemática">
+      </div>
+      <div class="hero-copy">
+        <span class="eyebrow">Sua próxima aventura começa aqui</span>
+        <h1>Desperte o <span>poder</span><br>dos números.</h1>
+        <p>Entre no desafio, teste suas habilidades matemáticas e avance questão por questão. Cada resposta é uma nova oportunidade de dominar a magia dos cálculos.</p>
+        <div class="hero-tags"><span>✦ Desafios matemáticos</span><span>⚡ Pontuação em tempo real</span><span>◆ Aprenda com as respostas</span></div>
+      </div>
+    </section>
+
+    <main class="game-container">
+      <header class="game-top">
+        <div><div class="section-kicker">O desafio está lançado</div><h2 class="game-title">Arena dos cálculos</h2></div>
+        <div class="score"><span class="score-icon">✦</span> PONTOS <span id="score">0</span></div>
+      </header>
+
+      <section id="quiz-screen">
+        <div class="progress-info"><span>Progresso da jornada</span><span id="question-number">1 / 10</span></div>
+        <div class="progress-bar" role="progressbar" aria-label="Progresso do quiz" aria-valuemin="0" aria-valuemax="100"><div class="progress" id="progress"></div></div>
+        <div class="question-card">
+          <span class="difficulty" id="difficulty">Fácil</span>
+          <h2 class="question" id="question">Carregando pergunta...</h2>
+        </div>
+        <div class="answers" id="answers"></div>
+        <div class="feedback" id="feedback" aria-live="polite"></div>
+        <button class="next-button" id="nextButton" style="display:none;">Próxima questão <span aria-hidden="true">→</span></button>
+      </section>
+
+      <section class="result-screen" id="result-screen">
+        <div class="trophy" id="trophy">🏆</div>
+        <h1>Desafio concluído!</h1>
+        <div class="final-score"><span id="final-score">0</span> pontos</div>
+        <p class="message" id="result-message">Muito bem!</p>
+        <button class="restart-button" onclick="restartGame()">↻ Jogar novamente</button>
+      </section>
+    </main>
+    <footer class="footer">MESTRE DAS CONTAS · UMA JORNADA DE CONHECIMENTO</footer>
+  </div>
+  <script>
+
+
+        const questions = [
+
+            {
+                question: "Quanto é 8 + 7?",
+                answers: ["13", "14", "15", "16"],
+                correct: 2,
+                difficulty: "Fácil",
+                explanation: "8 + 7 = 15. Somando as duas parcelas, chegamos ao resultado 15."
+            },
+
+            {
+                question: "Quanto é 9 × 6?",
+                answers: ["45", "48", "54", "56"],
+                correct: 2,
+                difficulty: "Fácil",
+                explanation: "9 × 6 = 54. A multiplicação representa seis grupos de nove."
+            },
+
+            {
+                question: "Qual é o resultado de 72 ÷ 8?",
+                answers: ["7", "8", "9", "10"],
+                correct: 2,
+                difficulty: "Fácil",
+                explanation: "72 ÷ 8 = 9, pois 8 × 9 = 72."
+            },
+
+            {
+                question: "Quanto é 15% de 200?",
+                answers: ["20", "25", "30", "35"],
+                correct: 2,
+                difficulty: "Médio",
+                explanation: "15% de 200 é 0,15 × 200 = 30."
+            },
+
+            {
+                question: "Se x + 12 = 20, qual é o valor de x?",
+                answers: ["6", "8", "10", "12"],
+                correct: 1,
+                difficulty: "Médio",
+                explanation: "Para descobrir x, fazemos 20 − 12. Portanto, x = 8."
+            },
+
+            {
+                question: "Qual é a área de um quadrado com lado de 5 cm?",
+                answers: ["10 cm²", "20 cm²", "25 cm²", "30 cm²"],
+                correct: 2,
+                difficulty: "Médio",
+                explanation: "A área do quadrado é lado × lado: 5 × 5 = 25 cm²."
+            },
+
+            {
+                question: "Qual é a raiz quadrada de 144?",
+                answers: ["10", "11", "12", "14"],
+                correct: 2,
+                difficulty: "Médio",
+                explanation: "12 × 12 = 144. Portanto, √144 = 12."
+            },
 
-    <main class="game-container">
+            {
+                question: "Quanto é 3² + 4²?",
+                answers: ["12", "20", "25", "28"],
+                correct: 2,
+                difficulty: "Difícil",
+                explanation: "3² = 9 e 4² = 16. Então 9 + 16 = 25."
+            },
 
-        <header class="header">
-            <div class="logo">
-                Quiz <span>Matemático</span> 🌸
-            </div>
+            {
+                question: "Se uma camisa custa R$ 80 e recebe um desconto de 25%, qual será o novo preço?",
+                answers: [
+                    "R$ 55",
+                    "R$ 60",
+                    "R$ 65",
+                    "R$ 70"
+                ],
+                correct: 1,
+                difficulty: "Difícil",
+                explanation: "25% de R$ 80 é R$ 20. Então R$ 80 − R$ 20 = R$ 60."
+            },
 
-            <div class="score">
-                ⭐ Pontos: <span id="score">0</span>
-            </div>
-        </header>
+            {
+                question: "Resolva: 2x + 6 = 18.",
+                answers: ["x = 4", "x = 5", "x = 6", "x = 7"],
+                correct: 2,
+                difficulty: "Difícil",
+                explanation: "2x + 6 = 18 → 2x = 12 → x = 6."
+            }
 
-        <section id="quiz-screen">
+        ];
 
-            <div class="progress-info">
-                <span>Progresso</span>
-                <span id="question-number">1 / 10</span>
-            </div>
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
 
-            <div class="progress-bar">
-                <div class="progress" id="progress"></div>
-            </div>
+        const questionElement = document.getElementById("question");
+        const answersElement = document.getElementById("answers");
+        const feedbackElement = document.getElementById("feedback");
+        const nextButton = document.getElementById("nextButton");
+        const scoreElement = document.getElementById("score");
+        const questionNumber = document.getElementById("question-number");
+        const progressElement = document.getElementById("progress");
+        const difficultyElement = document.getElementById("difficulty");
 
-            <div class="question-card">
-
-                <span class="difficulty" id="difficulty">
-                    Fácil
-                </span>
-
-                <h2 class="question" id="question">
-                    Carregando pergunta...
-                </h2>
-
-            </div>
-
-            <div class="answers" id="answers"></div>
-
-            <div class="feedback" id="feedback"></div>
-
-            <button class="next-button" id="nextButton" style="display:none;">
-                Próxima questão →
-            </button>
-
-        </section>
-
-        <section class="result-screen" id="result-screen">
-
-            <div class="trophy" id="trophy">🏆</div>
-
-            <h1>Quiz concluído!</h1>
-
-            <div class="final-score">
-                <span id="final-score">0</span> pontos
-            </div>
-
-            <p class="message" id="result-message">
-                Muito bem!
-            </p>
-
-            <button class="restart-button" onclick="restartGame()">
-                🔄 Jogar novamente
-            </button>
-
-        </section>
-
-    </main>
-
-    <script>
-
-        const questions = [
-
-            {
-                question: "Quanto é 8 + 7?",
-                answers: ["13", "14", "15", "16"],
-                correct: 2,
-                difficulty: "Fácil",
-                explanation: "8 + 7 = 15. Somando as duas parcelas, chegamos ao resultado 15."
-            },
-
-            {
-                question: "Quanto é 9 × 6?",
-                answers: ["45", "48", "54", "56"],
-                correct: 2,
-                difficulty: "Fácil",
-                explanation: "9 × 6 = 54. A multiplicação representa seis grupos de nove."
-            },
-
-            {
-                question: "Qual é o resultado de 72 ÷ 8?",
-                answers: ["7", "8", "9", "10"],
-                correct: 2,
-                difficulty: "Fácil",
-                explanation: "72 ÷ 8 = 9, pois 8 × 9 = 72."
-            },
-
-            {
-                question: "Quanto é 15% de 200?",
-                answers: ["20", "25", "30", "35"],
-                correct: 2,
-                difficulty: "Médio",
-                explanation: "15% de 200 é 0,15 × 200 = 30."
-            },
-
-            {
-                question: "Se x + 12 = 20, qual é o valor de x?",
-                answers: ["6", "8", "10", "12"],
-                correct: 1,
-                difficulty: "Médio",
-                explanation: "Para descobrir x, fazemos 20 − 12. Portanto, x = 8."
-            },
+        function loadQuestion() {
 
-            {
-                question: "Qual é a área de um quadrado com lado de 5 cm?",
-                answers: ["10 cm²", "20 cm²", "25 cm²", "30 cm²"],
-                correct: 2,
-                difficulty: "Médio",
-                explanation: "A área do quadrado é lado × lado: 5 × 5 = 25 cm²."
-            },
+            answered = false;
 
-            {
-                question: "Qual é a raiz quadrada de 144?",
-                answers: ["10", "11", "12", "14"],
-                correct: 2,
-                difficulty: "Médio",
-                explanation: "12 × 12 = 144. Portanto, √144 = 12."
-            },
+            const question = questions[currentQuestion];
 
-            {
-                question: "Quanto é 3² + 4²?",
-                answers: ["12", "20", "25", "28"],
-                correct: 2,
-                difficulty: "Difícil",
-                explanation: "3² = 9 e 4² = 16. Então 9 + 16 = 25."
-            },
+            questionElement.textContent = question.question;
 
-            {
-                question: "Se uma camisa custa R$ 80 e recebe um desconto de 25%, qual será o novo preço?",
-                answers: [
-                    "R$ 55",
-                    "R$ 60",
-                    "R$ 65",
-                    "R$ 70"
-                ],
-                correct: 1,
-                difficulty: "Difícil",
-                explanation: "25% de R$ 80 é R$ 20. Então R$ 80 − R$ 20 = R$ 60."
-            },
+            difficultyElement.textContent = question.difficulty;
 
-            {
-                question: "Resolva: 2x + 6 = 18.",
-                answers: ["x = 4", "x = 5", "x = 6", "x = 7"],
-                correct: 2,
-                difficulty: "Difícil",
-                explanation: "2x + 6 = 18 → 2x = 12 → x = 6."
-            }
+            questionNumber.textContent =
+                `${currentQuestion + 1} / ${questions.length}`;
 
-        ];
+            const progress =
+                ((currentQuestion) / questions.length) * 100;
 
-        let currentQuestion = 0;
-        let score = 0;
-        let answered = false;
+            progressElement.style.width = progress + "%";
 
-        const questionElement = document.getElementById("question");
-        const answersElement = document.getElementById("answers");
-        const feedbackElement = document.getElementById("feedback");
-        const nextButton = document.getElementById("nextButton");
-        const scoreElement = document.getElementById("score");
-        const questionNumber = document.getElementById("question-number");
-        const progressElement = document.getElementById("progress");
-        const difficultyElement = document.getElementById("difficulty");
+            answersElement.innerHTML = "";
 
-        function loadQuestion() {
+            feedbackElement.classList.remove("show");
 
-            answered = false;
+            nextButton.style.display = "none";
 
-            const question = questions[currentQuestion];
+            question.answers.forEach((answer, index) => {
 
-            questionElement.textContent = question.question;
+                const button = document.createElement("button");
 
-            difficultyElement.textContent = question.difficulty;
+                button.classList.add("answer");
 
-            questionNumber.textContent =
-                `${currentQuestion + 1} / ${questions.length}`;
+                button.textContent = answer;
 
-            const progress =
-                ((currentQuestion) / questions.length) * 100;
+                button.onclick = () => selectAnswer(index, button);
 
-            progressElement.style.width = progress + "%";
+                answersElement.appendChild(button);
 
-            answersElement.innerHTML = "";
+            });
+        }
 
-            feedbackElement.classList.remove("show");
+        function selectAnswer(index, button) {
 
-            nextButton.style.display = "none";
+            if (answered) return;
 
-            question.answers.forEach((answer, index) => {
+            answered = true;
 
-                const button = document.createElement("button");
+            const question = questions[currentQuestion];
 
-                button.classList.add("answer");
+            const buttons =
+                document.querySelectorAll(".answer");
 
-                button.textContent = answer;
+            buttons.forEach(btn => {
+                btn.disabled = true;
+            });
 
-                button.onclick = () => selectAnswer(index, button);
+            if (index === question.correct) {
 
-                answersElement.appendChild(button);
+                button.classList.add("correct");
 
-            });
-        }
+                score += 10;
 
-        function selectAnswer(index, button) {
+                scoreElement.textContent = score;
 
-            if (answered) return;
+                feedbackElement.innerHTML =
+                    "🎉 <strong>Resposta correta!</strong><br><br>" +
+                    question.explanation;
 
-            answered = true;
+            } else {
 
-            const question = questions[currentQuestion];
+                button.classList.add("wrong");
 
-            const buttons =
-                document.querySelectorAll(".answer");
+                buttons[question.correct].classList.add("correct");
 
-            buttons.forEach(btn => {
-                btn.disabled = true;
-            });
+                feedbackElement.innerHTML =
+                    "💡 <strong>Quase!</strong><br><br>" +
+                    question.explanation;
+            }
 
-            if (index === question.correct) {
+            feedbackElement.classList.add("show");
 
-                button.classList.add("correct");
+            nextButton.style.display = "block";
 
-                score += 10;
+        }
 
-                scoreElement.textContent = score;
+        nextButton.addEventListener("click", () => {
 
-                feedbackElement.innerHTML =
-                    "🎉 <strong>Resposta correta!</strong><br><br>" +
-                    question.explanation;
+            currentQuestion++;
 
-            } else {
+            if (currentQuestion < questions.length) {
 
-                button.classList.add("wrong");
+                loadQuestion();
 
-                buttons[question.correct].classList.add("correct");
+            } else {
 
-                feedbackElement.innerHTML =
-                    "💡 <strong>Quase!</strong><br><br>" +
-                    question.explanation;
-            }
+                showResult();
 
-            feedbackElement.classList.add("show");
+            }
 
-            nextButton.style.display = "block";
+        });
 
-        }
+        function showResult() {
 
-        nextButton.addEventListener("click", () => {
+            document.getElementById("quiz-screen")
+                .style.display = "none";
 
-            currentQuestion++;
+            const resultScreen =
+                document.getElementById("result-screen");
 
-            if (currentQuestion < questions.length) {
+            resultScreen.classList.add("show");
 
-                loadQuestion();
+            document.getElementById("final-score")
+                .textContent = score;
 
-            } else {
+            progressElement.style.width = "100%";
 
-                showResult();
+            let message = "";
+            let trophy = "🏆";
 
-            }
+            const percentage =
+                (score / (questions.length * 10)) * 100;
 
-        });
+            if (percentage === 100) {
 
-        function showResult() {
+                trophy = "👑";
 
-            document.getElementById("quiz-screen")
-                .style.display = "none";
+                message =
+                    "Perfeito! Você acertou todas as questões! Sua dedicação aos estudos está incrível!";
 
-            const resultScreen =
-                document.getElementById("result-screen");
+            } else if (percentage >= 70) {
 
-            resultScreen.classList.add("show");
+                trophy = "🏆";
 
-            document.getElementById("final-score")
-                .textContent = score;
+                message =
+                    "Excelente resultado! Você demonstrou um ótimo domínio da matemática.";
 
-            progressElement.style.width = "100%";
+            } else if (percentage >= 50) {
 
-            let message = "";
-            let trophy = "🏆";
+                trophy = "🌟";
 
-            const percentage =
-                (score / (questions.length * 10)) * 100;
+                message =
+                    "Muito bom! Você está no caminho certo. Continue praticando para evoluir ainda mais.";
 
-            if (percentage === 100) {
+            } else {
 
-                trophy = "👑";
+                trophy = "🌱";
 
-                message =
-                    "Perfeito! Você acertou todas as questões! Sua dedicação aos estudos está incrível!";
+                message =
+                    "Cada questão é uma oportunidade de aprender. Continue praticando e você vai melhorar cada vez mais!";
+            }
 
-            } else if (percentage >= 70) {
+            document.getElementById("trophy")
+                .textContent = trophy;
 
-                trophy = "🏆";
+            document.getElementById("result-message")
+                .textContent = message;
+        }
 
-                message =
-                    "Excelente resultado! Você demonstrou um ótimo domínio da matemática.";
+        function restartGame() {
 
-            } else if (percentage >= 50) {
+            currentQuestion = 0;
 
-                trophy = "🌟";
+            score = 0;
 
-                message =
-                    "Muito bom! Você está no caminho certo. Continue praticando para evoluir ainda mais.";
+            scoreElement.textContent = "0";
 
-            } else {
+            document.getElementById("result-screen")
+                .classList.remove("show");
 
-                trophy = "🌱";
+            document.getElementById("quiz-screen")
+                .style.display = "block";
 
-                message =
-                    "Cada questão é uma oportunidade de aprender. Continue praticando e você vai melhorar cada vez mais!";
-            }
+            loadQuestion();
+        }
 
-            document.getElementById("trophy")
-                .textContent = trophy;
+        loadQuestion();
 
-            document.getElementById("result-message")
-                .textContent = message;
-        }
-
-        function restartGame() {
-
-            currentQuestion = 0;
-
-            score = 0;
-
-            scoreElement.textContent = "0";
-
-            document.getElementById("result-screen")
-                .classList.remove("show");
-
-            document.getElementById("quiz-screen")
-                .style.display = "block";
-
-            loadQuestion();
-        }
-
-        loadQuestion();
-
-    </script>
-
+    
+  </script>
 </body>
 </html>
